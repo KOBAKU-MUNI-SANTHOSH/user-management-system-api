@@ -1,23 +1,31 @@
-const User = require("../models/User");
-const bcrypt = require("bcrypt");
+const User = require("../models/user");
+const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const asyncHandler = require("../middlewares/asyncHandler");
-// Register User
+
+// ================= Register User =================
+
 const registerUser = async (req, res) => {
     try {
         const { name, email, password } = req.body;
 
+        const existingUser = await User.findOne({ email });
+
+        if (existingUser) {
+            return res.status(400).json({
+                message: "Email already exists"
+            });
+        }
+
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        const user = new User({
+        const user = await User.create({
             name,
             email,
             password: hashedPassword
         });
 
-        await user.save();
-        console.log("Saved User:", user);
         res.status(201).json({
             message: "User registered successfully",
             user: {
@@ -28,20 +36,14 @@ const registerUser = async (req, res) => {
         });
 
     } catch (error) {
-
-        if (error.code === 11000) {
-            return res.status(400).json({
-                message: "Email already exists"
-            });
-        }
-
         res.status(500).json({
             message: error.message
         });
     }
 };
 
-// Login User
+// ================= Login User =================
+
 const loginUser = async (req, res) => {
     try {
 
@@ -86,7 +88,8 @@ const loginUser = async (req, res) => {
     }
 };
 
-// Get Profile
+// ================= Profile =================
+
 const getProfile = asyncHandler(async (req, res) => {
 
     const user = await User.findById(req.user.id).select("-password");
@@ -99,6 +102,7 @@ const getProfile = asyncHandler(async (req, res) => {
     res.status(200).json(user);
 
 });
+
 const getAllUsers = async (req, res) => {
     try {
 
@@ -112,12 +116,11 @@ const getAllUsers = async (req, res) => {
         });
     }
 };
+
 const deleteUser = async (req, res) => {
     try {
 
-        const { id } = req.params;
-
-        const user = await User.findById(id);
+        const user = await User.findById(req.params.id);
 
         if (!user) {
             return res.status(404).json({
@@ -125,7 +128,7 @@ const deleteUser = async (req, res) => {
             });
         }
 
-        await User.findByIdAndDelete(id);
+        await user.deleteOne();
 
         res.status(200).json({
             message: "User deleted successfully"
@@ -137,13 +140,21 @@ const deleteUser = async (req, res) => {
         });
     }
 };
+
+// ================= Update Role =================
+
 const updateUserRole = async (req, res) => {
     try {
 
-        const { id } = req.params;
         const { role } = req.body;
 
-        const user = await User.findById(id);
+        if (!["user", "admin"].includes(role)) {
+            return res.status(400).json({
+                message: "Invalid role"
+            });
+        }
+
+        const user = await User.findById(req.params.id);
 
         if (!user) {
             return res.status(404).json({
@@ -166,11 +177,17 @@ const updateUserRole = async (req, res) => {
         });
     }
 };
-// Upload Profile Image
+
+// ================= Upload Image =================
+
 const uploadProfileImage = async (req, res) => {
     try {
-        console.log("Logged-in User:", req.user);
-        console.log("Uploaded File:", req.file);
+
+        if (!req.file) {
+            return res.status(400).json({
+                message: "Please upload an image"
+            });
+        }
 
         const user = await User.findById(req.user.id);
 
@@ -184,20 +201,20 @@ const uploadProfileImage = async (req, res) => {
 
         await user.save();
 
-        console.log("Updated User:", user);
-
         res.status(200).json({
             message: "Profile image uploaded successfully",
             profileImage: user.profileImage
         });
 
     } catch (error) {
-        console.log(error);
         res.status(500).json({
             message: error.message
         });
     }
 };
+
+// ================= Update Profile =================
+
 const updateProfile = async (req, res) => {
     try {
 
@@ -227,6 +244,9 @@ const updateProfile = async (req, res) => {
         });
     }
 };
+
+// ================= Change Password =================
+
 const changePassword = async (req, res) => {
     try {
 
@@ -248,9 +268,7 @@ const changePassword = async (req, res) => {
             });
         }
 
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-        user.password = hashedPassword;
+        user.password = await bcrypt.hash(newPassword, 10);
 
         await user.save();
 
@@ -264,12 +282,15 @@ const changePassword = async (req, res) => {
         });
     }
 };
+
+// ================= Forgot Password =================
+
 const forgotPassword = async (req, res) => {
     try {
 
-        const { email } = req.body;
-
-        const user = await User.findOne({ email });
+        const user = await User.findOne({
+            email: req.body.email
+        });
 
         if (!user) {
             return res.status(404).json({
@@ -295,6 +316,9 @@ const forgotPassword = async (req, res) => {
         });
     }
 };
+
+// ================= Reset Password =================
+
 const resetPassword = async (req, res) => {
     try {
 
@@ -312,16 +336,12 @@ const resetPassword = async (req, res) => {
 
         if (user.resetTokenExpiry < Date.now()) {
             return res.status(400).json({
-                message: "Reset token has expired"
+                message: "Reset token expired"
             });
         }
 
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-        user.password = hashedPassword;
-
+        user.password = await bcrypt.hash(newPassword, 10);
         user.resetToken = "";
-
         user.resetTokenExpiry = null;
 
         await user.save();
@@ -336,6 +356,7 @@ const resetPassword = async (req, res) => {
         });
     }
 };
+
 module.exports = {
     registerUser,
     loginUser,

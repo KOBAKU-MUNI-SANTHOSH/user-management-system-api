@@ -2,21 +2,38 @@ const User = require("../models/user");
 
 const adminMiddleware = async (req, res, next) => {
 
-    const user = await User.findById(req.user.id);
+    try {
 
-    if (!user) {
-        return res.status(404).json({
-            message: "User not found"
+        const user = await User.findById(req.user.id);
+
+        if (!user) {
+
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+
+        }
+
+        if (user.role !== "admin") {
+
+            return res.status(403).json({
+                success: false,
+                message: "Admin access only"
+            });
+
+        }
+
+        next();
+
+    } catch (err) {
+
+        return res.status(500).json({
+            success: false,
+            message: err.message
         });
-    }
 
-    if (user.role !== "admin") {
-        return res.status(403).json({
-            message: "Access denied. Admin only."
-        });
     }
-
-    next();
 
 };
 

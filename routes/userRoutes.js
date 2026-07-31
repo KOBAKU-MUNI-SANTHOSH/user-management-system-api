@@ -3,6 +3,8 @@ const router = express.Router();
 
 const authMiddleware = require("../middlewares/authMiddleware");
 const adminMiddleware = require("../middlewares/adminMiddleware");
+const validateMiddleware = require("../middlewares/validateMiddleware");
+
 const upload = require("../config/multerConfig");
 
 const {
@@ -10,8 +12,6 @@ const {
     loginValidation,
     updateProfileValidation
 } = require("../middlewares/userValidation");
-
-const validateMiddleware = require("../middlewares/validateMiddleware");
 
 const {
     registerUser,
@@ -27,25 +27,7 @@ const {
     resetPassword
 } = require("../controllers/userController");
 
-// ====================
-// Admin Test Route
-// ====================
-
-router.get(
-    "/admin",
-    authMiddleware,
-    adminMiddleware,
-    (req, res) => {
-        res.status(200).json({
-            message: "Welcome Admin!"
-        });
-    }
-);
-
-// ====================
-// Auth Routes
-// ====================
-
+// Auth
 router.post(
     "/register",
     registerValidation,
@@ -60,21 +42,13 @@ router.post(
     loginUser
 );
 
-// ====================
-// User Routes
-// ====================
-
+// Profile
 router.get(
     "/profile",
     authMiddleware,
     getProfile
 );
-router.get(
-    "/all",
-    authMiddleware,
-    adminMiddleware,
-    getAllUsers
-);
+
 router.put(
     "/update",
     authMiddleware,
@@ -99,22 +73,46 @@ router.put(
     resetPassword
 );
 
+// Upload
 router.post(
     "/upload",
     authMiddleware,
     upload.single("profile"),
     uploadProfileImage
 );
-router.delete(
-    "/:id",
+
+// Admin
+router.get(
+    "/admin",
     authMiddleware,
     adminMiddleware,
-    deleteUser
+    (req, res) => {
+        res.status(200).json({
+            success: true,
+            message: "Welcome Admin!"
+        });
+    }
 );
+
+router.get(
+    "/all",
+    authMiddleware,
+    adminMiddleware,
+    getAllUsers
+);
+
 router.put(
     "/role/:id",
     authMiddleware,
     adminMiddleware,
     updateUserRole
 );
+
+router.delete(
+    "/:id",
+    authMiddleware,
+    adminMiddleware,
+    deleteUser
+);
+
 module.exports = router;

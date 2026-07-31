@@ -1,14 +1,12 @@
 const jwt = require("jsonwebtoken");
 
-
-
 const authMiddleware = (req, res, next) => {
 
-    // Get token from request header
     const token = req.header("Authorization");
 
     if (!token) {
         return res.status(401).json({
+            success: false,
             message: "Access Denied. No Token."
         });
     }
@@ -24,9 +22,10 @@ const authMiddleware = (req, res, next) => {
 
         next();
 
-    } catch (error) {
+    } catch (err) {
 
-        res.status(401).json({
+        return res.status(401).json({
+            success: false,
             message: "Invalid Token"
         });
 
