@@ -6,7 +6,7 @@ const adminMiddleware = require("../middlewares/adminMiddleware");
 const validateMiddleware = require("../middlewares/validateMiddleware");
 
 const upload = require("../config/multerConfig");
-
+const authLimiter = require("../middlewares/rateLimitMiddleware");
 const {
     registerValidation,
     loginValidation,
@@ -30,6 +30,7 @@ const {
 // Auth
 router.post(
     "/register",
+    authLimiter,
     registerValidation,
     validateMiddleware,
     registerUser
@@ -37,6 +38,7 @@ router.post(
 
 router.post(
     "/login",
+    authLimiter,
     loginValidation,
     validateMiddleware,
     loginUser
@@ -65,6 +67,7 @@ router.put(
 
 router.post(
     "/forgot-password",
+    authLimiter,
     forgotPassword
 );
 
