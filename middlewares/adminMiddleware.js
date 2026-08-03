@@ -1,10 +1,25 @@
 const User = require("../models/user");
 
+
+// ==========================================
+// ADMIN AUTHORIZATION MIDDLEWARE
+// ==========================================
+
 const adminMiddleware = async (req, res, next) => {
 
     try {
 
-        const user = await User.findById(req.user.id);
+        // Get the authenticated user
+        // using the ID from the verified access token
+
+        const user = await User
+            .findById(req.user.id)
+            .select("role");
+
+
+        // ======================================
+        // USER NOT FOUND
+        // ======================================
 
         if (!user) {
 
@@ -15,6 +30,11 @@ const adminMiddleware = async (req, res, next) => {
 
         }
 
+
+        // ======================================
+        // CHECK ADMIN ROLE
+        // ======================================
+
         if (user.role !== "admin") {
 
             return res.status(403).json({
@@ -24,17 +44,31 @@ const adminMiddleware = async (req, res, next) => {
 
         }
 
+
+        // ======================================
+        // ADMIN VERIFIED
+        // ======================================
+
         next();
 
-    } catch (err) {
+
+    } catch (error) {
+
+        console.error(
+            "Admin authorization error:",
+            error
+        );
+
 
         return res.status(500).json({
             success: false,
-            message: err.message
+            message:
+                "Unable to verify admin access"
         });
 
     }
 
 };
+
 
 module.exports = adminMiddleware;
