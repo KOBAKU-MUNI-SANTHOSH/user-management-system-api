@@ -58,6 +58,17 @@ const app = express();
 
 
 // ==========================================
+// TRUST RAILWAY PROXY
+// ==========================================
+
+// Railway runs the application behind a proxy.
+// This allows express-rate-limit to correctly
+// identify the user's IP address.
+
+app.set("trust proxy", 1);
+
+
+// ==========================================
 // CONNECT MONGODB
 // ==========================================
 
@@ -80,17 +91,6 @@ app.use(
 // ==========================================
 // CORS
 // ==========================================
-//
-// credentials: true is IMPORTANT because
-// our refresh token is stored inside an
-// HttpOnly cookie.
-//
-// We allow:
-//
-// 1. Local Vite frontend
-// 2. Deployed Railway frontend
-//
-// ==========================================
 
 app.use(
     cors({
@@ -108,9 +108,7 @@ app.use(
 // BODY PARSERS
 // ==========================================
 
-app.use(
-    express.json()
-);
+app.use(express.json());
 
 app.use(
     express.urlencoded({
@@ -122,16 +120,8 @@ app.use(
 // ==========================================
 // COOKIE PARSER
 // ==========================================
-//
-// Needed for:
-//
-// req.cookies.refreshToken
-//
-// ==========================================
 
-app.use(
-    cookieParser()
-);
+app.use(cookieParser());
 
 
 // ==========================================
@@ -176,15 +166,8 @@ app.get("/", (req, res) => {
 // ==========================================
 // ERROR MIDDLEWARE
 // ==========================================
-//
-// IMPORTANT:
-// Error middleware must remain AFTER routes.
-//
-// ==========================================
 
-app.use(
-    errorMiddleware
-);
+app.use(errorMiddleware);
 
 
 // ==========================================
