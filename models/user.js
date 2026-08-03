@@ -1,47 +1,76 @@
 const mongoose = require("mongoose");
 
-const userSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true,
-        trim: true
-    },
+const userSchema = new mongoose.Schema(
+    {
+        // ================================
+        // BASIC USER INFORMATION
+        // ================================
 
-    email: {
-        type: String,
-        required: true,
-        unique: true,
-        lowercase: true,
-        trim: true
-    },
+        name: {
+            type: String,
+            required: true,
+            trim: true
+        },
 
-    password: {
-        type: String,
-        required: true
-    },
+        email: {
+            type: String,
+            required: true,
+            unique: true,
+            lowercase: true,
+            trim: true
+        },
 
-    role: {
-        type: String,
-        enum: ["user", "admin"],
-        default: "user"
-    },
+        password: {
+            type: String,
+            required: true
+        },
 
-    profileImage: {
-        type: String,
-        default: ""
-    },
 
-    resetToken: {
-        type: String,
-        default: ""
-    },
+        // ================================
+        // ROLE
+        // ================================
 
-    resetTokenExpiry: {
-        type: Date
+        role: {
+            type: String,
+            enum: ["user", "admin"],
+            default: "user"
+        },
+
+
+        // ================================
+        // PROFILE IMAGE
+        // ================================
+
+        profileImage: {
+            type: String,
+            default: ""
+        },
+
+
+        // ================================
+        // PASSWORD RESET
+        // ================================
+
+        // IMPORTANT:
+        // We will store the HASHED reset
+        // token here, not the raw token.
+
+        resetToken: {
+            type: String,
+            default: ""
+        },
+
+        resetTokenExpiry: {
+            type: Date,
+            default: null
+        }
+    },
+    {
+        timestamps: true
     }
+);
 
-}, {
-    timestamps: true
-});
-
-module.exports = mongoose.model("User", userSchema);
+module.exports = mongoose.model(
+    "User",
+    userSchema
+);
