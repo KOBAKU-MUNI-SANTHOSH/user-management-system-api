@@ -16,7 +16,7 @@ dns.setServers([
 // ==========================================
 
 require("dotenv").config();
-
+console.log("SERVER ENV =", process.env.RESEND_API_KEY);
 
 // ==========================================
 // PACKAGES
