@@ -767,378 +767,78 @@ const forgotPassword = async (req, res) => {
 
         try {
 
-            await transporter.sendMail({
+            await transporter.emails.send({
+                from: "User Management <onboarding@resend.dev>",
 
-                // ==========================================
-                // FROM
-                // ==========================================
+                to: user.email,
 
-                from:
-                    `"User Management System" <${process.env.EMAIL_USER}>`,
-
-
-                // ==========================================
-                // TO
-                // ==========================================
-
-                to:
-                    user.email,
-
-
-                // ==========================================
-                // SUBJECT
-                // ==========================================
-
-                subject:
-                    "Reset Your Password",
-
-
-                // ==========================================
-                // PLAIN TEXT FALLBACK
-                // ==========================================
-
-                text: `
-Hello ${user.name},
-
-We received a request to reset your password.
-
-Open this link to create a new password:
-
-${resetUrl}
-
-This password reset link expires in 15 minutes.
-
-If you did not request this password reset, you can safely ignore this email.
-
-User Management System
-                `,
-
-
-                // ==========================================
-                // HTML EMAIL
-                // ==========================================
+                subject: "Reset Your Password",
 
                 html: `
-<!DOCTYPE html>
+                <!DOCTYPE html>
+                <html>
+                <body style="font-family: Arial, sans-serif; background:#f4f4f4; padding:40px;">
 
-<html>
+                    <div style="
+                        max-width:600px;
+                        margin:auto;
+                        background:white;
+                        padding:30px;
+                        border-radius:10px;
+                    ">
 
-<head>
+                        <h2>Hello ${user.name},</h2>
 
-    <meta charset="UTF-8">
+                        <p>
+                            We received a request to reset your password.
+                        </p>
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+                        <p>
+                            Click the button below to create a new password.
+                        </p>
 
-</head>
-
-
-<body
-    style="
-        margin: 0;
-        padding: 0;
-        background-color: #f3f4f6;
-        font-family: Arial, Helvetica, sans-serif;
-    "
->
-
-
-    <!-- EMAIL BACKGROUND -->
-
-    <table
-        width="100%"
-        cellpadding="0"
-        cellspacing="0"
-        border="0"
-        role="presentation"
-        style="
-            width: 100%;
-            background-color: #f3f4f6;
-        "
-    >
-
-        <tr>
-
-            <td
-                align="center"
-                style="
-                    padding: 40px 20px;
-                "
-            >
-
-
-                <!-- EMAIL CARD -->
-
-                <table
-                    width="600"
-                    cellpadding="0"
-                    cellspacing="0"
-                    border="0"
-                    role="presentation"
-                    style="
-                        width: 100%;
-                        max-width: 600px;
-                        background-color: #ffffff;
-                        border-radius: 12px;
-                    "
-                >
-
-                    <tr>
-
-                        <td
+                        <a
+                            href="${resetUrl}"
                             style="
-                                padding: 40px;
+                                display:inline-block;
+                                padding:14px 25px;
+                                background:#6C3BFF;
+                                color:white;
+                                text-decoration:none;
+                                border-radius:8px;
+                                font-weight:bold;
                             "
                         >
+                            Reset Password
+                        </a>
 
+                        <p style="margin-top:25px;">
+                            If the button doesn't work, copy this link:
+                        </p>
 
-                            <!-- TITLE -->
+                        <p>
+                            ${resetUrl}
+                        </p>
 
-                            <h1
-                                style="
-                                    margin: 0 0 24px 0;
-                                    color: #111827;
-                                    font-size: 28px;
-                                "
-                            >
-                                Reset Your Password
-                            </h1>
+                        <p>
+                            This link expires in <b>15 minutes</b>.
+                        </p>
 
+                        <p>
+                            If you didn't request this password reset,
+                            simply ignore this email.
+                        </p>
 
-                            <!-- GREETING -->
+                        <hr>
 
-                            <p
-                                style="
-                                    margin: 0 0 16px 0;
-                                    color: #4b5563;
-                                    font-size: 16px;
-                                    line-height: 1.6;
-                                "
-                            >
+                        <p style="color:gray;">
+                            User Management System
+                        </p>
 
-                                Hello ${user.name},
+                    </div>
 
-                            </p>
-
-
-                            <!-- MESSAGE -->
-
-                            <p
-                                style="
-                                    margin: 0 0 16px 0;
-                                    color: #4b5563;
-                                    font-size: 16px;
-                                    line-height: 1.6;
-                                "
-                            >
-
-                                We received a request to reset
-                                the password for your User
-                                Management System account.
-
-                            </p>
-
-
-                            <p
-                                style="
-                                    margin: 0 0 25px 0;
-                                    color: #4b5563;
-                                    font-size: 16px;
-                                    line-height: 1.6;
-                                "
-                            >
-
-                                Click the button below to
-                                create a new password.
-
-                            </p>
-
-
-                            <!-- RESET BUTTON -->
-
-                            <table
-                                cellpadding="0"
-                                cellspacing="0"
-                                border="0"
-                                role="presentation"
-                                align="center"
-                                style="
-                                    margin: 30px auto;
-                                "
-                            >
-
-                                <tr>
-
-                                    <td
-                                        align="center"
-                                        bgcolor="#111827"
-                                        style="
-                                            background-color: #111827;
-                                            border-radius: 8px;
-                                        "
-                                    >
-
-                                        <a
-                                            href="${resetUrl}"
-                                            target="_blank"
-                                            style="
-                                                display: inline-block;
-                                                padding: 15px 30px;
-                                                color: #ffffff;
-                                                font-family: Arial, Helvetica, sans-serif;
-                                                font-size: 16px;
-                                                font-weight: bold;
-                                                line-height: 20px;
-                                                text-decoration: none;
-                                                border-radius: 8px;
-                                            "
-                                        >
-                                            Reset Password
-                                        </a>
-
-                                    </td>
-
-                                </tr>
-
-                            </table>
-
-
-                            <!-- FALLBACK LINK -->
-
-                            <p
-                                style="
-                                    margin: 30px 0 10px 0;
-                                    color: #6b7280;
-                                    font-size: 14px;
-                                    line-height: 1.6;
-                                "
-                            >
-
-                                If the button doesn't work,
-                                click or copy the link below:
-
-                            </p>
-
-
-                            <p
-                                style="
-                                    margin: 0 0 25px 0;
-                                    font-size: 13px;
-                                    line-height: 1.6;
-                                    word-break: break-all;
-                                "
-                            >
-
-                                <a
-                                    href="${resetUrl}"
-                                    target="_blank"
-                                    style="
-                                        color: #2563eb;
-                                        text-decoration: underline;
-                                    "
-                                >
-                                    ${resetUrl}
-                                </a>
-
-                            </p>
-
-
-                            <!-- EXPIRY -->
-
-                            <div
-                                style="
-                                    margin: 25px 0;
-                                    padding: 15px;
-                                    background-color: #f9fafb;
-                                    border-radius: 8px;
-                                "
-                            >
-
-                                <p
-                                    style="
-                                        margin: 0;
-                                        color: #4b5563;
-                                        font-size: 14px;
-                                        line-height: 1.6;
-                                    "
-                                >
-
-                                    🔐 This password reset
-                                    link expires in
-
-                                    <strong>
-                                        15 minutes
-                                    </strong>.
-
-                                </p>
-
-                            </div>
-
-
-                            <!-- SECURITY MESSAGE -->
-
-                            <p
-                                style="
-                                    margin: 20px 0;
-                                    color: #4b5563;
-                                    font-size: 14px;
-                                    line-height: 1.6;
-                                "
-                            >
-
-                                If you did not request this
-                                password reset, you can safely
-                                ignore this email.
-
-                            </p>
-
-
-                            <!-- DIVIDER -->
-
-                            <hr
-                                style="
-                                    margin: 30px 0;
-                                    border: 0;
-                                    border-top: 1px solid #e5e7eb;
-                                "
-                            >
-
-
-                            <!-- FOOTER -->
-
-                            <p
-                                style="
-                                    margin: 0;
-                                    color: #9ca3af;
-                                    font-size: 12px;
-                                    text-align: center;
-                                "
-                            >
-
-                                User Management System
-
-                            </p>
-
-
-                        </td>
-
-                    </tr>
-
-                </table>
-
-
-            </td>
-
-        </tr>
-
-    </table>
-
-
-</body>
-
-</html>
+                </body>
+                </html>
                 `
             });
 
