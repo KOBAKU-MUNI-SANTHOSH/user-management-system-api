@@ -757,8 +757,7 @@ const forgotPassword = async (req, res) => {
         // CREATE RESET URL
         // ==================================================
 
-        const resetUrl =
-            `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+        const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
 
 
         // ==================================================
